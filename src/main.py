@@ -1,6 +1,7 @@
-from fastapi import FastAPI, Header, HTTPException
+from fastapi import FastAPI, Header, HTTPException, Request
 from datetime import datetime
 import pytz
+import json
 from typing import Optional, Any, List
 
 app = FastAPI()
@@ -41,5 +42,14 @@ async def hello_world(
 
 
 @app.post("/unravel")
-async def unravel_json(data: dict):
-    return flatten(data)
+async def unravel_json(request: Request):
+    try:
+        body = await request.body()
+        data = json.loads(body)
+        return flatten(data)
+
+    except json.JSONDecodeError:
+        raise HTTPException(
+            status_code=422,
+            detail="Invalid JSON format"
+        )

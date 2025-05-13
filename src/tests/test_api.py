@@ -36,7 +36,20 @@ class TestAPI(unittest.TestCase):
             "key1", "keyA", "foo", 0, "bar",
             "some other key", 2, "finally", "end"
         ]
-        
+        response = self.client.post("/unravel", json=test_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+    def test_unravel_single_string(self):
+        test_data = "test"
+        expected = ["test"]
+        response = self.client.post("/unravel", json=test_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+    def test_unravel_list(self):
+        test_data = [1, "test", 2]
+        expected = test_data
         response = self.client.post("/unravel", json=test_data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), expected)
