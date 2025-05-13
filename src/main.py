@@ -1,8 +1,12 @@
 from fastapi import FastAPI, Header, HTTPException, Request
 from datetime import datetime
+from typing import Optional, Any, List
 import pytz
 import json
-from typing import Optional, Any, List
+import os
+import subprocess
+import hashlib
+import hmac
 
 app = FastAPI()
 
@@ -20,6 +24,18 @@ def flatten(data: Any) -> List[Any]:
     else:
         result.append(data)
     return result
+
+
+def verify(body: bytes, signature: str) -> bool:
+    webhook_secret = os.getenv("WEBHOOK_SECRET")
+    if not webhook_secret:
+        return True
+    expected = hmac.new(
+        webhook_secret.encode(),
+        body,
+        hashlib.sha256
+    ).hexdigest()
+    return hmac.compare_digest(f"sha256={expected}", signature)
 
 
 @app.get("/helloworld")
@@ -52,4 +68,36 @@ async def unravel_json(request: Request):
         raise HTTPException(
             status_code=422,
             detail="Invalid JSON format"
+        )
+
+
+@app.post("/roll")
+async def roll_update(request: Request):
+    signature = request.headers.get('X-Hub-Signature-256', '')
+    body = await request.body()
+    if not verify(body, signature):
+        raise HTTPException(status_code=401, detail="invalid signature")
+    try:
+        pull_result = subprocess.run(
+            ["git", "pull", "origin", "main"],
+            capture_output=True,
+            text=True
+        )    
+        if pull_result.returncode != 0:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Git pull failed: {pull_result.stderr}"
+            )
+        subprocess.Popen([
+            "bash", "-c",
+            "sleep 1 && make restart"
+        ], start_new_session=True)
+        return {
+            "status": "success",
+            "message": "Server restart initiated",
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
         )

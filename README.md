@@ -38,6 +38,8 @@ POST `/unravel`: restructures valid JSON into a list of elements
 
 - Body can be any valid JSON
 
+POST `/roll`: pulls and updates the repository
+
 ### Example 1
 
 ```bash
