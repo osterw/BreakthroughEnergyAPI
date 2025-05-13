@@ -62,7 +62,7 @@ class TestFlattenJson(unittest.TestCase):
             ({"a": [1, 2]}, ["a", 1, 2]),
             ({"a": {"b": "c"}}, ["a", "b", "c"]),
         ]
-        
+
         for input_data, expected in test_cases:
             with self.subTest(input=input_data):
                 self.assertEqual(flatten(input_data), expected)

@@ -50,7 +50,9 @@ async def hello_world(
             current_time = datetime.now(timezone).strftime("%Y-%m-%d %H:%M:%S")
             message = f"{message} It is {current_time} in timezone: {tz}"
         except pytz.exceptions.UnknownTimeZoneError:
-            raise HTTPException(status_code=400, detail=f"Your timezone {tz} is invalid")
+            raise HTTPException(
+                status_code=400,
+                detail=f"Your timezone {tz} is invalid")
 
     if accept == "application/json":
         return {"message": message}
@@ -82,7 +84,7 @@ async def roll_update(request: Request):
             ["git", "pull", "origin", "main"],
             capture_output=True,
             text=True
-        )    
+        )
         if pull_result.returncode != 0:
             raise HTTPException(
                 status_code=500,
