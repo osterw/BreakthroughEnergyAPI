@@ -7,5 +7,6 @@ test:
 	python -m unittest discover -s src/tests
 
 restart:
-	pkill -f uvicorn || true
+	-pkill -f "uvicorn src.main:app" || true
+	sleep 2
 	make run

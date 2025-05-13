@@ -72,15 +72,32 @@ async def unravel_json(request: Request):
 
 
 @app.post("/roll")
-async def roll(request: Request):
+async def roll_update(request: Request):
     signature = request.headers.get('X-Hub-Signature-256', '')
     body = await request.body()
     if not verify(body, signature):
         raise HTTPException(status_code=401, detail="invalid signature")
-
     try:
-        subprocess.run(["git", "pull", "origin", "main"], check=True)
-        subprocess.run(["make", "restart"], check=True)
-        return {"status": "success", "message": "Server updated and restarted"}
-    except subprocess.CalledProcessError as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        pull_result = subprocess.run(
+            ["git", "pull", "origin", "main"],
+            capture_output=True,
+            text=True
+        )    
+        if pull_result.returncode != 0:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Git pull failed: {pull_result.stderr}"
+            )
+        subprocess.Popen([
+            "bash", "-c",
+            "sleep 1 && make restart"
+        ], start_new_session=True)
+        return {
+            "status": "success",
+            "message": "Server restart initiated",
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
