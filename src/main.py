@@ -26,12 +26,12 @@ async def hello_world(
     tz: Optional[str] = None,
     accept: Optional[str] = Header(default="text/plain")
 ):
-    message = "Hellow World!"
+    message = "Hello World!"
     if tz:
         try:
-            timezone = pytz.timezon(tz)
+            timezone = pytz.timezone(tz)
             current_time = datetime.now(timezone).strftime("%Y-%m-%d %H:%M:%S")
-            message = f"{message} it is {current_time} in timezone: {tz}"
+            message = f"{message} It is {current_time} in timezone: {tz}"
         except pytz.exceptions.UnknownTimeZoneError:
             raise HTTPException(status_code=400, detail=f"Your timezone {tz} is invalid")
 
