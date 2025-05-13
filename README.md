@@ -29,7 +29,7 @@ This repository includes tests, you can run them via `make test`
 
 ## Endpoints 
 
-GET `/helloworld`: returns a "Hellow World!" message
+GET `/helloworld`: returns a "Hello World!" message
 
 - Set `Accept: application/json` header for a JSON response
 - Add `tz` parameter with IANA timezone to customize message with timezone information
