@@ -38,3 +38,8 @@ async def hello_world(
     if accept == "application/json":
         return {"message": message}
     return message
+
+
+@app.post("/unravel")
+async def unravel_json(data: dict):
+    return flatten(data)
