@@ -30,3 +30,57 @@ This repository includes tests, you can run them via `make test`
 ## Endpoints 
 
 GET `/helloworld`: returns a "Hellow World!" message
+
+- Set `Accept: application/json` header for a JSON response
+- Add `tz` parameter with IANA timezone to customize message with timezone information
+
+POST `/unravel`: restructures valid JSON into a list of elements
+
+- Body can be any valid JSON
+
+### Example 1
+
+```bash
+curl --location 'localhost:8000/unravel' \
+--header 'Content-Type: application/json' \
+--data '{
+    "test 1": [
+        1,
+        2,
+        3
+    ],
+    "test 2": "result",
+    "test 3": {
+        "subtest 1": 1,
+        "subtest 2": [
+            1,
+            2,
+            3
+        ],
+        "subtest 3": "result"
+    }
+}'
+```
+### Response 
+
+`["test 1",1,2,3,"test 2","result","test 3","subtest 1",1,"subtest 2",1,2,3,"subtest 3","result"]`
+
+### Example 2
+```bash
+curl --location 'localhost:8000/unravel' \
+--header 'Content-Type: application/json' \
+--data '"test"'
+```
+
+### Response
+`["test"]`
+
+### Example 3
+```bash
+curl --location 'localhost:8000/unravel' \
+--header 'Content-Type: application/json' \
+--data '[1,2,3]'
+```
+
+### Response
+`[1,2,3]`
